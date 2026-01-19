@@ -38,6 +38,10 @@ if (isset($_POST['login'])) {
 
             header('Location: ../index.php');
             exit;
+        } else {
+            // jika gagal
+            header('Location: ../login.php?error=1');
+            exit;
         }
     } else {
         // jika gagal

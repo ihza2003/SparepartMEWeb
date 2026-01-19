@@ -13,6 +13,16 @@
             <!-- Modal Body -->
             <form action="proses/DataMasuk.php" method="post">
                 <div class="modal-body">
+                    <?php if (isset($_SESSION['error'])): ?>
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="fa fa-times-circle"></i>
+                            <?= $_SESSION['error']; ?>
+                            <button type="button" class="close" data-dismiss="alert">
+                                <span>&times;</span>
+                            </button>
+                        </div>
+                        <?php unset($_SESSION['error']); ?>
+                    <?php endif; ?>
                     <div class="form-group">
                         <label>Nomor Barang</label>
                         <input type="text" name="nomorbarang" class="form-control" placeholder="Masukkan nomor barang" required>
@@ -40,7 +50,7 @@
 
                     <div class="form-group">
                         <label>Jumlah</label>
-                        <input type="number" name="jumlah" class="form-control" placeholder="Jumlah" required>
+                        <input type="number" name="jumlah" class="form-control" placeholder="Masukan Jumlah Barang" required>
                     </div>
 
                 </div>

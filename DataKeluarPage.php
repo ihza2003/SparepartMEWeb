@@ -1,7 +1,7 @@
 <?php
 session_start();
 require 'helper/authCheck.php';
-$page_title = 'Data Barang Masuk';
+$page_title = 'Data Barang Keluar';
 $page_css = 'css/styles.css';
 include 'layouts/headerPage.php';
 require 'database/koneksi.php';
@@ -20,11 +20,11 @@ require 'database/koneksi.php';
         <div id="layoutSidenav_content">
             <main>
                 <div class="container-fluid">
-                    <h3 class="mt-4">Data Sparepart Masuk - Maintenance Site 2</h3><br>
+                    <h3 class="mt-4">Data Sparepart Keluar - Maintenance Site 2</h3><br>
                     <div class="card mb-4">
                         <div class="card-header">
                             <i class="fas fa-table mr-1"></i>
-                            Table Data Stok Barang Masuk - Maintenace Site 2
+                            Table Data Stok Barang Keluar - Maintenace Site 2
                         </div>
                         <div class="card-body">
                             <?php if (isset($_SESSION['success'])): ?>
@@ -57,7 +57,7 @@ require 'database/koneksi.php';
                                             <th style="text-align: center;">Nama Barang</th>
                                             <th style="text-align: center;">Mesin</th>
                                             <th style="text-align: center;">Nomor Rak</th>
-                                            <th style="text-align: center;">Pengirim</th>
+                                            <th style="text-align: center;">Penerima</th>
                                             <th style="text-align: center;">Jumlah</th>
                                             <th style="text-align: center;">Tanggal</th>
                                             <th style="text-align: center;">Aksi</th>
@@ -65,22 +65,21 @@ require 'database/koneksi.php';
                                     </thead>
                                     <tbody>
                                         <?php
-                                        //baca data base tabel Masuk dan relasikan dengan tabel untuk tanggal hari ini
-
                                         //filter tabel
                                         $sqlIner = mysqli_query($konek, "SELECT 
-                                            m.idmasuk,
-                                            m.idbarang,
-                                            m.tanggal,
-                                            m.pengirim,
-                                            m.jumlah,
-                                            s.nomorbarang,
-                                            s.namabarang,
-                                            s.mesin,
-                                            s.norak
-                                            FROM tb_masuk m
-                                            JOIN tb_stok s ON m.idbarang = s.idbarang
-                                            ORDER BY m.tanggal DESC");
+                                        m.idkeluar,
+                                        m.tanggal,
+                                        m.idbarang,
+                                        m.penerima,
+                                        m.jumlah,
+                                        s.nomorbarang,
+                                        s.namabarang,
+                                        s.mesin,
+                                        s.norak
+                                        FROM tb_keluar m
+                                        JOIN tb_stok s ON m.idbarang = s.idbarang
+                                        ORDER BY m.tanggal DESC");
+
                                         $no = 0;
                                         while ($dataIner = mysqli_fetch_array($sqlIner)) {
 
@@ -92,14 +91,14 @@ require 'database/koneksi.php';
                                                 <td><?= $dataIner['namabarang'] ?></td>
                                                 <td><?= $dataIner['mesin'] ?></td>
                                                 <td style="text-align:center;"><?= $dataIner['norak'] ?></td>
-                                                <td style="text-align:center;"><?= $dataIner['pengirim'] ?></td>
+                                                <td style="text-align:center;"><?= $dataIner['penerima'] ?></td>
                                                 <td style="text-align:center;"><?= $dataIner['jumlah'] ?></td>
                                                 <td style="text-align:center;"><?= $dataIner['tanggal'] ?></td>
                                                 <td style="text-align:center;">
                                                     <button type="button"
                                                         class="btn btn-warning  btn-sm"
                                                         data-toggle="modal"
-                                                        data-target="#modalUpdateMasuk<?= $dataIner['idmasuk']; ?>"
+                                                        data-target="#modalUpdateKeluar<?= $dataIner['idkeluar']; ?>"
                                                         title="Edit">
                                                         <i class="fa fa-edit"></i>
                                                     </button>
@@ -107,13 +106,13 @@ require 'database/koneksi.php';
                                                     <button class="btn btn-danger btn-sm rounded"
                                                         title="Hapus"
                                                         data-toggle="modal"
-                                                        data-target="#modalHapusMasuk<?= $dataIner['idmasuk'] ?>">
+                                                        data-target="#modalHapuskeluar<?= $dataIner['idkeluar'] ?>">
                                                         <i class="fa fa-trash"></i>
                                                     </button>
                                                 </td>
                                             </tr>
-                                            <?php include "components/modalMasukUpdate.php"; ?>
-                                            <?php include "components/ModalHapusMasuk.php"; ?>
+                                            <?php include "components/modalKeluarUpdate.php"; ?>
+                                            <?php include "components/modalHapusKeluar.php"; ?>
                                         <?php } ?>
                                     </tbody>
                                 </table>

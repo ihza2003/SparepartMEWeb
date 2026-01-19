@@ -25,7 +25,7 @@
                                     <a class="nav-link" href="DataMasukPage.php">
                                         <div class="sb-nav-link-icon"><i class='bxr bx-database'></i></div>Barang Masuk
                                     </a>
-                                    <a class="nav-link" href="#">
+                                    <a class="nav-link" href="DataKeluarPage.php">
                                         <div class="sb-nav-link-icon"><i class='bxr bx-database'></i></div>Barang Keluar
                                     </a>
                                 </nav>
@@ -64,6 +64,13 @@
                                     </div>
                                 </nav>
                             </div>
+
+                            <!-- pengelolaan hak akses -->
+                            <div class="sb-sidenav-menu-heading">Hak Akses</div>
+                            <a class="nav-link" href="#">
+                                <div class="sb-nav-link-icon"><i class='bx bx-group'></i> </div>
+                                Kelola Hak Akses
+                            </a>
 
                             <!-- Menu Keluar-->
                             <div class="sb-sidenav-menu-heading">Addons</div>
