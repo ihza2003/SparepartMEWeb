@@ -11,18 +11,8 @@
             </div>
 
             <!-- Modal Body -->
-            <form action="proses/DataMasuk.php" method="post">
+            <form action="proses/DataMasuk.php" method="post" enctype="multipart/form-data">
                 <div class="modal-body">
-                    <?php if (isset($_SESSION['error'])): ?>
-                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                            <i class="fa fa-times-circle"></i>
-                            <?= $_SESSION['error']; ?>
-                            <button type="button" class="close" data-dismiss="alert">
-                                <span>&times;</span>
-                            </button>
-                        </div>
-                        <?php unset($_SESSION['error']); ?>
-                    <?php endif; ?>
                     <div class="form-group">
                         <label>Nomor Barang</label>
                         <input type="text" name="nomorbarang" class="form-control" placeholder="Masukkan nomor barang" required>
@@ -47,6 +37,12 @@
                         <label>Pengirim</label>
                         <input type="text" name="pengirim" class="form-control" placeholder="Pengirim" required>
                     </div>
+
+                    <div class="form-group">
+                        <label>Foto Barang</label>
+                        <input type="file" name="gambar" class="form-control" placeholder="Foto Gambar" accept="image/*" required>
+                    </div>
+
 
                     <div class="form-group">
                         <label>Jumlah</label>

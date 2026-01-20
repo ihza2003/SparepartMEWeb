@@ -9,12 +9,10 @@
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
 
-            <form action="proses/DataStok.php" method="post">
+            <form action="proses/DataStok.php" method="post" enctype="multipart/form-data">
                 <div class="modal-body">
-
                     <!-- ID BARANG -->
                     <input type="hidden" name="idbarang" value="<?= $dataIner['idbarang']; ?>">
-
                     <!-- Nomor Barang -->
                     <div class="form-group">
                         <label>Nomor Barang</label>
@@ -51,8 +49,20 @@
                             required>
                     </div>
 
-                    <!-- Jumlah / Stok (TIDAK BOLEH DIUBAH) -->
+                    <!-- Gambar -->
                     <div class="form-group">
+                        <div class="form-group">
+                            <label>Foto Barang Saat Ini</label><br>
+                            <img src="storage/<?= $dataIner['gambar']; ?>"
+                                class="img-thumbnail mb-2"
+                                width="120">
+                        </div>
+                        <input type="file" name="gambar"
+                            class="form-control" accept="image/*">
+                    </div>
+
+                    <!-- Jumlah / Stok (TIDAK BOLEH DIUBAH) -->
+                    <div class=" form-group">
                         <label>Jumlah (Otomatis)</label>
                         <input type="number"
                             class="form-control"

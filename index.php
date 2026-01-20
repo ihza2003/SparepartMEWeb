@@ -3,6 +3,7 @@ session_start();
 require 'helper/authCheck.php';
 $page_title = 'Dashboard';
 $page_css = 'css/styles.css';
+$page_css_responsive = 'css/responsive.css';
 include 'layouts/headerPage.php';
 require 'database/koneksi.php';
 ?>
@@ -20,7 +21,7 @@ require 'database/koneksi.php';
             <main>
                 <div class="container-fluid">
                     <!-- H1 Judul Halaman -->
-                    <h3 class="mt-4">Data Akses Ruang Sparepart Site 2</h3><br>
+                    <h3 class="mt-4 header-content">Data Akses Ruang Sparepart Site 2</h3><br>
 
                     <div class="card mb-4">
                         <div class="card-header">

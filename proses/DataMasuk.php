@@ -6,59 +6,94 @@ if (isset($_POST['btnInBaru'])) {
 
     date_default_timezone_set('Asia/Jakarta');
 
-    // ambil data dari form
     $nomorbarang = trim($_POST['nomorbarang']);
     $namabarang  = trim($_POST['namabarang']);
     $mesin       = trim($_POST['mesin']);
     $norak       = trim($_POST['nomorrak']);
     $pengirim    = trim($_POST['pengirim']);
     $jumlah      = (int) $_POST['jumlah'];
+    $iduser      = $_SESSION['admin_id'];
 
-    $iduser = $_SESSION['admin_id']; // Admin yang sedang login
-
-
-    // validasi
+    // ================= VALIDASI FORM =================
     if (
+        empty($nomorbarang) ||
+        empty($namabarang) ||
         empty($mesin) ||
         empty($norak) ||
         empty($pengirim) ||
-        empty($nomorbarang) ||
-        empty($namabarang) ||
-        $jumlah <= 0 ||
-        empty($iduser)
+        $jumlah <= 0
     ) {
-        $_SESSION['error'] = 'Data tidak boleh kosong atau jumlah tidak valid';
+        $_SESSION['error'] = 'Data tidak boleh kosong';
         header('Location: ../DataMasukPage.php');
         exit;
     }
 
-    // cek nomor barang
+    // ================= VALIDASI GAMBAR (WAJIB) =================
+    if (!isset($_FILES['gambar']) || $_FILES['gambar']['error'] !== 0) {
+        $_SESSION['error'] = 'Gambar barang wajib diupload';
+        header('Location: ../DataMasukPage.php');
+        exit;
+    }
+
+    $file     = $_FILES['gambar'];
+    $size     = $file['size'];
+    $tmp      = $file['tmp_name'];
+    $ext      = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+
+    $allowed  = ['jpg', 'jpeg', 'png'];
+    $maxSize  = 2 * 1024 * 1024; // 2MB
+
+    if (!in_array($ext, $allowed)) {
+        $_SESSION['error'] = 'Format gambar harus JPG / JPEG / PNG';
+        header('Location: ../DataMasukPage.php');
+        exit;
+    }
+
+    if ($size > $maxSize) {
+        $_SESSION['error'] = 'Ukuran gambar maksimal 2MB';
+        header('Location: ../DataMasukPage.php');
+        exit;
+    }
+
+    // nama file unik
+    $namaFile = uniqid('barang_', true) . '.' . $ext;
+    $path     = '../storage/' . $namaFile;
+
+    // ================= CEK BARANG =================
     $cek = mysqli_query($konek, "SELECT 1 FROM tb_stok WHERE nomorbarang='$nomorbarang'");
     if (mysqli_num_rows($cek) > 0) {
-        $_SESSION['error'] = 'Nomor barang sudah ada, silahkan input di barang lama';
+        $_SESSION['error'] = 'Nomor barang sudah ada';
         header('Location: ../DataMasukPage.php');
         exit;
     }
 
-    // transaksi
+    // ================= TRANSAKSI =================
     mysqli_begin_transaction($konek);
+
     try {
-        $insertStok = mysqli_query($konek, "INSERT INTO tb_stok (nomorbarang, namabarang, mesin, norak, stok)
-            VALUES ('$nomorbarang','$namabarang','$mesin','$norak',$jumlah)
+
+        if (!move_uploaded_file($tmp, $path)) {
+            throw new Exception('Gagal upload gambar');
+        }
+
+        $insertStok = mysqli_query($konek, "
+            INSERT INTO tb_stok (nomorbarang, namabarang, mesin, norak, stok, gambar)
+            VALUES ('$nomorbarang','$namabarang','$mesin','$norak',$jumlah,'$namaFile')
         ");
 
         if (!$insertStok) {
-            throw new Exception('Gagal simpan data stok');
+            throw new Exception('Gagal simpan stok');
         }
 
         $idbarang = mysqli_insert_id($konek);
 
-        $insertMasuk = mysqli_query($konek, "INSERT INTO tb_masuk (idbarang, iduser, pengirim, jumlah)
-            VALUES ($idbarang, $iduser, '$pengirim', $jumlah)
+        $insertMasuk = mysqli_query($konek, "
+            INSERT INTO tb_masuk (idbarang, iduser, pengirim, jumlah)
+            VALUES ($idbarang,$iduser,'$pengirim',$jumlah)
         ");
 
         if (!$insertMasuk) {
-            throw new Exception('Gagal simpan data masuk');
+            throw new Exception('Gagal simpan barang masuk');
         }
 
         mysqli_commit($konek);
@@ -66,12 +101,19 @@ if (isset($_POST['btnInBaru'])) {
         header('Location: ../DataMasukPage.php');
         exit;
     } catch (Exception $e) {
+
         mysqli_rollback($konek);
+
+        if (file_exists($path)) {
+            unlink($path); // hapus gambar gagal
+        }
+
         $_SESSION['error'] = $e->getMessage();
         header('Location: ../DataMasukPage.php');
         exit;
     }
 }
+
 
 
 //jika tombol simpan barang lama diklik
