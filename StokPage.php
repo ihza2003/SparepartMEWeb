@@ -29,7 +29,7 @@ $merah  = mysqli_fetch_assoc($qMerah)['total'];
         <div id="layoutSidenav_content">
             <main>
                 <div class="container-fluid">
-                    <h3 class="mt-4 header-content">Data Stok Sparepart Maintenance Site 2</h3>
+                    <h4 class="mt-4 header-content">Data Stok Sparepart Maintenance Site 2</h4>
                     <div class=" row g-4 justify-content-between my-4">
                         <!-- STOK AMAN -->
                         <div class="card-statistik col-xl-4 col-md-6 mb-4">
@@ -55,7 +55,10 @@ $merah  = mysqli_fetch_assoc($qMerah)['total'];
                                     </div>
 
                                     <div class="mt-2 pt-1 border-top">
-                                        <a href="#" class="text-decoration-none text-success small fw-bold">Lihat Detail →</a>
+                                        <a href="StokPage.php?filter=aman" class="text-decoration-none text-success small fw-bold">
+                                            Lihat Detail →
+                                        </a>
+
                                     </div>
                                 </div>
                             </div>
@@ -85,7 +88,10 @@ $merah  = mysqli_fetch_assoc($qMerah)['total'];
                                     </div>
 
                                     <div class="mt-2 pt-1 border-top">
-                                        <a href="#" class="text-decoration-none small fw-bold" style="color: #ffab00;">Lihat Detail →</a>
+                                        <a href="StokPage.php?filter=menipis" class="text-decoration-none small fw-bold" style="color: #ffab00;">
+                                            Lihat Detail →
+                                        </a>
+
                                     </div>
                                 </div>
                             </div>
@@ -115,7 +121,10 @@ $merah  = mysqli_fetch_assoc($qMerah)['total'];
                                     </div>
 
                                     <div class="mt-2 pt-1 border-top">
-                                        <a href="#" class="text-decoration-none text-danger small fw-bold">Lihat Detail →</a>
+                                        <a href="StokPage.php?filter=habis" class="text-decoration-none text-danger small fw-bold">
+                                            Lihat Detail →
+                                        </a>
+
                                     </div>
                                 </div>
                             </div>
@@ -166,14 +175,40 @@ $merah  = mysqli_fetch_assoc($qMerah)['total'];
                                     </thead>
                                     <tbody>
                                         <?php
-                                        //baca data base tabel Stok dan relasikan dengan tabel untuk tanggal hari ini
-
                                         //filter tabel
-                                        $sqlIner = mysqli_query($konek, "SELECT * FROM tb_stok");
+                                        $where = '';
+                                        if (isset($_GET['filter'])) {
+                                            switch ($_GET['filter']) {
+                                                case 'aman':
+                                                    $where = 'WHERE stok > 5';
+                                                    $titleFilter = 'Stok Aman';
+                                                    break;
+                                                case 'menipis':
+                                                    $where = 'WHERE stok BETWEEN 1 AND 5';
+                                                    $titleFilter = 'Stok Menipis';
+                                                    break;
+                                                case 'habis':
+                                                    $where = 'WHERE stok = 0';
+                                                    $titleFilter = 'Stok Habis';
+                                                    break;
+                                            }
+                                        }
 
+                                        $sqlIner = mysqli_query($konek, "SELECT * FROM tb_stok $where");
                                         $no = 0;
-                                        while ($dataIner = mysqli_fetch_array($sqlIner)) {
 
+                                        if (isset($_GET['filter'])): ?>
+                                            <div class="alert alert-info d-flex justify-content-between align-items-center">
+                                                <span>
+                                                    Menampilkan Kategori Data: <strong><?= $titleFilter ?></strong>
+                                                </span>
+                                                <a href="StokPage.php" class="btn btn-sm btn-secondary rounded-2">
+                                                    Reset Filter
+                                                </a>
+                                            </div>
+                                        <?php endif;
+
+                                        while ($dataIner = mysqli_fetch_array($sqlIner)) {
                                             $no++;
                                         ?>
                                             <tr>

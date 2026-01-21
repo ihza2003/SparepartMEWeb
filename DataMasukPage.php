@@ -21,7 +21,7 @@ require 'database/koneksi.php';
         <div id="layoutSidenav_content">
             <main>
                 <div class="container-fluid">
-                    <h3 class="mt-4 header-content">Data Sparepart Masuk - Maintenance Site 2</h3><br>
+                    <h4 class="mt-4 header-content">Data Sparepart Masuk - Maintenance Site 2</h4><br>
                     <div class="card mb-4">
                         <div class="card-header">
                             <i class="fas fa-table mr-1"></i>
@@ -49,6 +49,45 @@ require 'database/koneksi.php';
                                 </div>
                                 <?php unset($_SESSION['error']); ?>
                             <?php endif; ?>
+                            <form method="POST" class="mb-3">
+                                <div class="card shadow-sm">
+                                    <div class="card-body">
+                                        <div class="row h-100 align-items-end">
+                                            <div class="col-md-5 mb-2">
+                                                <label class="small font-weight-bold">Tanggal Awal</label>
+                                                <input type="date"
+                                                    name="firstDate"
+                                                    class="form-control"
+                                                    value="<?= $_POST['firstDate'] ?? '' ?>"
+                                                    required>
+                                            </div>
+
+                                            <div class="col-md-5 mb-2">
+                                                <label class="small font-weight-bold">Tanggal Akhir</label>
+                                                <input type="date"
+                                                    name="endDate"
+                                                    class="form-control"
+                                                    value="<?= $_POST['endDate'] ?? '' ?>"
+                                                    required>
+                                            </div>
+
+                                            <div class="col-md-2 mb-2">
+                                                <button type="submit"
+                                                    name="btnFilterTanggal"
+                                                    class="btn btn-primary mr-2">
+                                                    <i class="fa fa-filter"></i> Filter
+                                                </button>
+
+                                                <a href="DataMasukPage.php"
+                                                    class="btn btn-secondary">
+                                                    Reset
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+
                             <div class="table-responsive">
                                 <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                                     <thead>
@@ -66,10 +105,26 @@ require 'database/koneksi.php';
                                     </thead>
                                     <tbody>
                                         <?php
-                                        //baca data base tabel Masuk dan relasikan dengan tabel untuk tanggal hari ini
-
-                                        //filter tabel
-                                        $sqlIner = mysqli_query($konek, "SELECT 
+                                        //filter tabel sesuai rentang tanggal
+                                        if (isset($_POST['btnFilterTanggal'])) {
+                                            $firstDate = $_POST['firstDate'];
+                                            $endDate = $_POST['endDate'];
+                                            $sqlIner = mysqli_query($konek, "SELECT 
+                                                m.idmasuk,
+                                                m.idbarang,
+                                                m.tanggal,
+                                                m.pengirim,
+                                                m.jumlah,
+                                                s.nomorbarang,
+                                                s.namabarang,
+                                                s.mesin,
+                                                s.norak
+                                                FROM tb_masuk m
+                                                JOIN tb_stok s ON m.idbarang = s.idbarang
+                                                WHERE m.tanggal BETWEEN '$firstDate' AND '$endDate'
+                                                ORDER BY m.tanggal DESC");
+                                        } else {
+                                            $sqlIner = mysqli_query($konek, "SELECT 
                                             m.idmasuk,
                                             m.idbarang,
                                             m.tanggal,
@@ -82,6 +137,7 @@ require 'database/koneksi.php';
                                             FROM tb_masuk m
                                             JOIN tb_stok s ON m.idbarang = s.idbarang
                                             ORDER BY m.tanggal DESC");
+                                        }
                                         $no = 0;
                                         while ($dataIner = mysqli_fetch_array($sqlIner)) {
 
