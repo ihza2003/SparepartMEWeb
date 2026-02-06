@@ -40,7 +40,8 @@
                         <input type="text" name="pengirim"
                             class="form-control"
                             value="<?= $dataIner['pengirim']; ?>"
-                            required>
+                            required
+                            disabled>
                     </div>
 
                     <!-- Jumlah -->

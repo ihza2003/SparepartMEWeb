@@ -88,6 +88,17 @@ require 'database/koneksi.php';
                                     </div>
                                 </div>
                             </form>
+                            <form action="export/exportDataKeluarPDF.php" method="POST" target="_blank">
+                                <input type="hidden" name="firstDate" value="<?= $_POST['firstDate'] ?? '' ?>">
+                                <input type="hidden" name="endDate" value="<?= $_POST['endDate'] ?? '' ?>">
+
+                                <button type="submit" class="btn btn-danger mb-3">
+                                    <i class="fa fa-file-pdf"></i> Export PDF
+                                </button>
+                                <button type="submit" class="btn btn-success mb-3">
+                                    <i class="fa fa-file-excel"></i> Export Excel
+                                </button>
+                            </form>
                             <div class="table-responsive">
                                 <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                                     <thead>

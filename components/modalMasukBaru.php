@@ -33,10 +33,10 @@
                         <input type="text" name="nomorrak" class="form-control" placeholder="Nomor Rak" required>
                     </div>
 
-                    <div class="form-group">
+                    <!-- <div class="form-group">
                         <label>Pengirim</label>
                         <input type="text" name="pengirim" class="form-control" placeholder="Pengirim" required>
-                    </div>
+                    </div> -->
 
                     <div class="form-group">
                         <label>Foto Barang</label>

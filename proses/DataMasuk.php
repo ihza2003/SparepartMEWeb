@@ -10,7 +10,6 @@ if (isset($_POST['btnInBaru'])) {
     $namabarang  = trim($_POST['namabarang']);
     $mesin       = trim($_POST['mesin']);
     $norak       = trim($_POST['nomorrak']);
-    $pengirim    = trim($_POST['pengirim']);
     $jumlah      = (int) $_POST['jumlah'];
     $iduser      = $_SESSION['admin_id'];
 
@@ -20,7 +19,6 @@ if (isset($_POST['btnInBaru'])) {
         empty($namabarang) ||
         empty($mesin) ||
         empty($norak) ||
-        empty($pengirim) ||
         $jumlah <= 0
     ) {
         $_SESSION['error'] = 'Data tidak boleh kosong';
@@ -88,8 +86,8 @@ if (isset($_POST['btnInBaru'])) {
         $idbarang = mysqli_insert_id($konek);
 
         $insertMasuk = mysqli_query($konek, "
-            INSERT INTO tb_masuk (idbarang, iduser, pengirim, jumlah)
-            VALUES ($idbarang,$iduser,'$pengirim',$jumlah)
+            INSERT INTO tb_masuk (idbarang, iduser, jumlah)
+            VALUES ($idbarang,$iduser,$jumlah)
         ");
 
         if (!$insertMasuk) {
@@ -123,7 +121,6 @@ if (isset($_POST['btnInLama'])) {
 
     // ambil data dari form
     $idbarang = (int) $_POST['idbarang'];
-    $pengirim = trim($_POST['pengirim']);
     $jumlah   = (int) $_POST['jumlah'];
     $iduser   = $_SESSION['admin_id'];
 
@@ -135,7 +132,6 @@ if (isset($_POST['btnInLama'])) {
         empty($idbarang) ||
         empty($jumlah) ||
         $jumlah <= 0 ||
-        empty($pengirim) ||
         empty($iduser)
     ) {
         $_SESSION['error'] = 'Input tidak valid';
@@ -153,8 +149,7 @@ if (isset($_POST['btnInLama'])) {
         // =====================
         // LOCK DATA STOK
         // =====================
-        $qStok = mysqli_query($konek, "
-            SELECT stok 
+        $qStok = mysqli_query($konek, "SELECT stok 
             FROM tb_stok 
             WHERE idbarang = $idbarang 
             FOR UPDATE
@@ -184,8 +179,8 @@ if (isset($_POST['btnInLama'])) {
         // =====================
         // SIMPAN HISTORI MASUK
         // =====================
-        $insertMasuk = mysqli_query($konek, "INSERT INTO tb_masuk (idbarang, iduser, pengirim, jumlah)
-            VALUES ($idbarang, $iduser, '$pengirim', $jumlah)
+        $insertMasuk = mysqli_query($konek, "INSERT INTO tb_masuk (idbarang, iduser, jumlah)
+            VALUES ($idbarang, $iduser, $jumlah)
         ");
 
         if (!$insertMasuk) {
@@ -222,13 +217,11 @@ if (isset($_POST['btnUpdateIn'])) {
     // ambil data dari form
     $idmasuk   = (int) $_POST['idmasuk'];
     $idbarang  = (int) $_POST['idbarang'];
-    $pengirim  = trim($_POST['pengirim']);
     $jumlah    = (int) $_POST['jumlah'];
 
     if (
         empty($idmasuk) ||
         empty($idbarang) ||
-        empty($pengirim) ||
         empty($jumlah) ||
         $jumlah <= 0
     ) {
@@ -329,8 +322,7 @@ if (isset($_POST['btnUpdateIn'])) {
        ========================= */
         $updateMasuk = mysqli_query($konek, "UPDATE tb_masuk 
         SET idbarang = $idbarang,
-            jumlah   = $jumlah,
-            pengirim = '$pengirim'
+            jumlah   = $jumlah
         WHERE idmasuk = $idmasuk
     ");
 

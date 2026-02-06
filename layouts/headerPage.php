@@ -9,7 +9,7 @@
     <title>
         <?= isset($page_title) ? $page_title : 'SparepartME' ?>
     </title>
-    <link rel="icon" type="image/png" href="img/logo.jpg">
+    <link rel="icon" type="image/png" href="img/logo.png">
     <link href='https://cdn.boxicons.com/fonts/basic/boxicons.min.css' rel='stylesheet'>
     <link rel="stylesheet" href="<?= $page_css ?? '' ?>">
     <?php if (isset($page_css_responsive)) : ?>

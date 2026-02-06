@@ -31,13 +31,13 @@
                     </div>
 
                     <!-- Pengirim -->
-                    <div class="form-group">
+                    <!-- <div class="form-group">
                         <label for="pengirim">Pengirim</label>
                         <input type="text" name="pengirim" id="pengirim"
                             class="form-control"
                             placeholder="Masukkan nama pengirim"
                             required>
-                    </div>
+                    </div> -->
 
                     <!-- Jumlah -->
                     <div class="form-group">

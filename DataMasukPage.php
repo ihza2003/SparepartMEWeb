@@ -88,6 +88,19 @@ require 'database/koneksi.php';
                                 </div>
                             </form>
 
+                            <form action="export/exportDataMasukPDF.php" method="POST" target="_blank">
+                                <input type="hidden" name="firstDate" value="<?= $_POST['firstDate'] ?? '' ?>">
+                                <input type="hidden" name="endDate" value="<?= $_POST['endDate'] ?? '' ?>">
+
+                                <button type="submit" class="btn btn-danger mb-3">
+                                    <i class="fa fa-file-pdf"></i> Export PDF
+                                </button>
+                                <button type="submit" class="btn btn-success mb-3">
+                                    <i class="fa fa-file-excel"></i> Export Excel
+                                </button>
+                            </form>
+
+
                             <div class="table-responsive">
                                 <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                                     <thead>
@@ -113,7 +126,7 @@ require 'database/koneksi.php';
                                                 m.idmasuk,
                                                 m.idbarang,
                                                 m.tanggal,
-                                                m.pengirim,
+                                                u.user AS pengirim,
                                                 m.jumlah,
                                                 s.nomorbarang,
                                                 s.namabarang,
@@ -121,22 +134,24 @@ require 'database/koneksi.php';
                                                 s.norak
                                                 FROM tb_masuk m
                                                 JOIN tb_stok s ON m.idbarang = s.idbarang
+                                                JOIN admin u ON m.iduser = u.iduser
                                                 WHERE m.tanggal BETWEEN '$firstDate' AND '$endDate'
                                                 ORDER BY m.tanggal DESC");
                                         } else {
                                             $sqlIner = mysqli_query($konek, "SELECT 
-                                            m.idmasuk,
-                                            m.idbarang,
-                                            m.tanggal,
-                                            m.pengirim,
-                                            m.jumlah,
-                                            s.nomorbarang,
-                                            s.namabarang,
-                                            s.mesin,
-                                            s.norak
-                                            FROM tb_masuk m
-                                            JOIN tb_stok s ON m.idbarang = s.idbarang
-                                            ORDER BY m.tanggal DESC");
+                                                m.idmasuk,
+                                                m.tanggal,
+                                                m.idbarang,
+                                                m.jumlah,
+                                                u.user AS pengirim,
+                                                s.nomorbarang,
+                                                s.namabarang,
+                                                s.mesin,
+                                                s.norak
+                                                FROM tb_masuk m
+                                                JOIN tb_stok s ON m.idbarang = s.idbarang
+                                                JOIN admin u ON m.iduser = u.iduser
+                                                ORDER BY m.tanggal DESC");
                                         }
                                         $no = 0;
                                         while ($dataIner = mysqli_fetch_array($sqlIner)) {

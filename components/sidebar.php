@@ -65,13 +65,6 @@
                                 </nav>
                             </div>
 
-                            <!-- pengelolaan hak akses -->
-                            <div class="sb-sidenav-menu-heading">Hak Akses</div>
-                            <a class="nav-link" href="#">
-                                <div class="sb-nav-link-icon"><i class='bx bx-group'></i> </div>
-                                Kelola Hak Akses
-                            </a>
-
                             <!-- Menu Keluar-->
                             <div class="sb-sidenav-menu-heading">Addons</div>
                             <a class="nav-link" href="logout.php">
