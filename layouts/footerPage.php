@@ -16,6 +16,7 @@
 
 <!-- Custom Script -->
 <script src="js/scripts.js"></script>
+<script src="js/login.js"></script>
 <script src="assets/demo/datatables-demo.js"></script>
 
 </html>

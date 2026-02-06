@@ -1,0 +1,81 @@
+/* BACKGROUND */
+.wrapper {
+    height: 100vh !important;
+    background: linear-gradient(120deg, #e6f0f7, #f7f9fc);
+}
+
+.jdl-login {
+    color: #296bae;
+}
+
+.login-card {
+    border-radius: 20px !important;
+}
+
+/* IMAGE */
+.login-image {
+    height: 100% !important;
+}
+
+.login-image img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    object-position: top left;
+}
+
+/* FORM */
+.form-control {
+    height: 48px !important;
+    border-radius: 12px !important;
+    background-color: #f4f6f9 !important;
+    border: 1px solid #e0e4e8 !important;
+}
+
+.form-control:focus {
+    background-color: #fff !important;
+    border-color: #296bae !important;
+    box-shadow: none !important;
+}
+
+/* PASSWORD */
+.password-input {
+    position: relative;
+}
+
+.password-input input {
+    padding-right: 45px;
+}
+
+.password-input .toggle-password {
+    position: absolute !important;
+    top: 50%;
+    right: 14px;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #6c757d;
+}
+
+/* BUTTON */
+.btn-lgn {
+    width: 100% !important;
+    height: 48px !important;
+    background-color: #296bae !important;
+    border-radius: 50px !important;
+    border: none !important;
+}
+
+.btn-lgn:hover {
+    background-color: #1f5a95 !important;
+}
+
+@media screen and (max-width: 768px) {
+    .login-image {
+        height: 190px !important;
+    }
+
+    .login-image img {
+        object-fit: cover !important;
+        object-position: top center;
+    }
+}
