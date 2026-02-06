@@ -129,7 +129,7 @@
                 <th width="22%">Nama Barang</th>
                 <th width="15%">Mesin</th>
                 <th width="6%">Rak</th>
-                <th width="15%">Pengirim</th>
+                <th width="15%">Penerima</th>
                 <th width="8%">Jumlah</th>
                 <th width="12%">Tanggal</th>
             </tr>
