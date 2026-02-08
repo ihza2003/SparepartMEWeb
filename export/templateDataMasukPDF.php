@@ -137,7 +137,7 @@
         <tbody>
             <?php if (count($dataMasuk) == 0): ?>
                 <tr>
-                    <td colspan="8" class="text-center">Data tidak ditemukan</td>
+                    <td colspan="8" class="text-center">Tidak Ada Aktivitas Barang Masuk</td>
                 </tr>
             <?php else: ?>
                 <?php foreach ($dataMasuk as $i => $row): ?>

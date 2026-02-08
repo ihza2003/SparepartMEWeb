@@ -21,7 +21,7 @@
                     <!-- Nama Barang -->
                     <div class="form-group">
                         <label>Nama Barang</label>
-                        <select name="idbarang" class="form-control" required>
+                        <select name="idbarang" class="form-control select-barang" required>
                             <?php
                             $stok = mysqli_query($konek, "SELECT idbarang, namabarang FROM tb_stok");
                             while ($s = mysqli_fetch_assoc($stok)) {

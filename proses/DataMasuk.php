@@ -57,10 +57,17 @@ if (isset($_POST['btnInBaru'])) {
     $namaFile = uniqid('barang_', true) . '.' . $ext;
     $path     = '../storage/' . $namaFile;
 
-    // ================= CEK BARANG =================
-    $cek = mysqli_query($konek, "SELECT 1 FROM tb_stok WHERE nomorbarang='$nomorbarang'");
-    if (mysqli_num_rows($cek) > 0) {
-        $_SESSION['error'] = 'Nomor barang sudah ada';
+    // ================= CEK BARANG (AMAN) =================
+    $stmtCek = mysqli_prepare(
+        $konek,
+        "SELECT 1 FROM tb_stok WHERE nomorbarang = ?"
+    );
+    mysqli_stmt_bind_param($stmtCek, "s", $nomorbarang);
+    mysqli_stmt_execute($stmtCek);
+    mysqli_stmt_store_result($stmtCek);
+
+    if (mysqli_stmt_num_rows($stmtCek) > 0) {
+        $_SESSION['error'] = 'Nomor barang sudah Digunakan';
         header('Location: ../DataMasukPage.php');
         exit;
     }
@@ -74,23 +81,44 @@ if (isset($_POST['btnInBaru'])) {
             throw new Exception('Gagal upload gambar');
         }
 
-        $insertStok = mysqli_query($konek, "
-            INSERT INTO tb_stok (nomorbarang, namabarang, mesin, norak, stok, gambar)
-            VALUES ('$nomorbarang','$namabarang','$mesin','$norak',$jumlah,'$namaFile')
+        // ================= INSERT STOK =================
+        $stmtStok = mysqli_prepare($konek, "INSERT INTO tb_stok 
+            (nomorbarang, namabarang, mesin, norak, stok, gambar)
+            VALUES (?, ?, ?, ?, ?, ?)
         ");
 
-        if (!$insertStok) {
+        mysqli_stmt_bind_param(
+            $stmtStok,
+            "ssssis",
+            $nomorbarang,
+            $namabarang,
+            $mesin,
+            $norak,
+            $jumlah,
+            $namaFile
+        );
+
+        if (!mysqli_stmt_execute($stmtStok)) {
             throw new Exception('Gagal simpan stok');
         }
 
         $idbarang = mysqli_insert_id($konek);
 
-        $insertMasuk = mysqli_query($konek, "
+        // ================= INSERT BARANG MASUK (AMAN) =================
+        $stmtMasuk = mysqli_prepare($konek, "
             INSERT INTO tb_masuk (idbarang, iduser, jumlah)
-            VALUES ($idbarang,$iduser,$jumlah)
+            VALUES (?, ?, ?)
         ");
 
-        if (!$insertMasuk) {
+        mysqli_stmt_bind_param(
+            $stmtMasuk,
+            "iii",
+            $idbarang,
+            $iduser,
+            $jumlah
+        );
+
+        if (!mysqli_stmt_execute($stmtMasuk)) {
             throw new Exception('Gagal simpan barang masuk');
         }
 
@@ -103,7 +131,7 @@ if (isset($_POST['btnInBaru'])) {
         mysqli_rollback($konek);
 
         if (file_exists($path)) {
-            unlink($path); // hapus gambar gagal
+            unlink($path);
         }
 
         $_SESSION['error'] = $e->getMessage();

@@ -227,13 +227,6 @@ $merah  = mysqli_fetch_assoc($qMerah)['total'];
                                                         title="Edit">
                                                         <i class="fa fa-edit"></i>
                                                     </button>
-
-                                                    <!-- <button class="btn btn-danger btn-sm rounded"
-                                                        title="Hapus"
-                                                        data-toggle="modal"
-                                                        data-target="#modalHapusMasuk<?= $dataIner['idmasuk'] ?>">
-                                                        <i class="fa fa-trash"></i>
-                                                    </button> -->
                                                 </td>
                                             </tr>
                                             <?php include "components/modalStokUpdate.php"; ?>

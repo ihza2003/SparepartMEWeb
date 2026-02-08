@@ -88,17 +88,24 @@ require 'database/koneksi.php';
                                     </div>
                                 </div>
                             </form>
-                            <form action="export/exportDataKeluarPDF.php" method="POST" target="_blank">
-                                <input type="hidden" name="firstDate" value="<?= $_POST['firstDate'] ?? '' ?>">
-                                <input type="hidden" name="endDate" value="<?= $_POST['endDate'] ?? '' ?>">
+                            <div class="wrapper-export mb-3 d-flex justify-content-center justify-content-md-end" style="gap: 4px;">
+                                <form action="export/exportDataKeluarPDF.php" method="POST" target="_blank">
+                                    <input type="hidden" name="firstDate" value="<?= $_POST['firstDate'] ?? '' ?>">
+                                    <input type="hidden" name="endDate" value="<?= $_POST['endDate'] ?? '' ?>">
 
-                                <button type="submit" class="btn btn-danger mb-3">
-                                    <i class="fa fa-file-pdf"></i> Export PDF
-                                </button>
-                                <button type="submit" class="btn btn-success mb-3">
-                                    <i class="fa fa-file-excel"></i> Export Excel
-                                </button>
-                            </form>
+                                    <button type="submit" class="btn btn-danger btn-sm">
+                                        <i class="fa fa-file-pdf"></i> Export PDF
+                                    </button>
+                                </form>
+                                <form action="export/exportDataKeluarExcel.php" method="POST">
+                                    <input type="hidden" name="firstDate" value="<?= $_POST['firstDate'] ?? '' ?>">
+                                    <input type="hidden" name="endDate" value="<?= $_POST['endDate'] ?? '' ?>">
+
+                                    <button type="submit" class="btn btn-sm btn-success">
+                                        <i class="fa fa-file-excel"></i> Export Excel
+                                    </button>
+                                </form>
+                            </div>
                             <div class="table-responsive">
                                 <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                                     <thead>
