@@ -28,7 +28,6 @@ if (isset($_POST['btnOut'])) {
         exit;
     }
 
-
     // =========================
     // TRANSACTION START
     // =========================
@@ -39,25 +38,31 @@ if (isset($_POST['btnOut'])) {
         /* =========================
            1. KURANGI STOK (AMAN)
            ========================= */
-        $updateStok = mysqli_query($konek, "UPDATE tb_stok 
-            SET stok = stok - $jumlah
-            WHERE idbarang = $idbarang 
-            AND stok >= $jumlah
-        ");
+        $sqlUpdateStok = "UPDATE tb_stok 
+            SET stok = stok - ?
+            WHERE idbarang = ?
+            AND stok >= ?";
+
+        $stmtUpdate = mysqli_prepare($konek, $sqlUpdateStok);
+        mysqli_stmt_bind_param($stmtUpdate, "iii", $jumlah, $idbarang, $jumlah);
+        mysqli_stmt_execute($stmtUpdate);
 
         // Jika stok tidak cukup / barang tidak ada
-        if (mysqli_affected_rows($konek) == 0) {
+        if (mysqli_stmt_affected_rows($stmtUpdate) == 0) {
             throw new Exception('Stok tidak mencukupi');
         }
 
         /* =========================
            2. SIMPAN KE tb_keluar
            ========================= */
-        $insertKeluar = mysqli_query($konek, "INSERT INTO tb_keluar (idbarang, iduser, penerima, jumlah)
-            VALUES ($idbarang, $iduser, '$penerima', $jumlah)
-        ");
+        $sqlInsertKeluar = "INSERT INTO tb_keluar (idbarang, iduser, penerima, jumlah)
+            VALUES (?, ?, ?, ?)";
 
-        if (!$insertKeluar) {
+        $stmtInsert = mysqli_prepare($konek, $sqlInsertKeluar);
+        mysqli_stmt_bind_param($stmtInsert, "iisi", $idbarang, $iduser, $penerima, $jumlah);
+        mysqli_stmt_execute($stmtInsert);
+
+        if (mysqli_stmt_affected_rows($stmtInsert) == 0) {
             throw new Exception('Gagal simpan data keluar');
         }
 
@@ -81,6 +86,7 @@ if (isset($_POST['btnOut'])) {
         exit;
     }
 }
+
 //jika tombol update barang keluar diklik
 if (isset($_POST['btnUpdateOut'])) {
     //ambil data dari form
@@ -105,32 +111,51 @@ if (isset($_POST['btnUpdateOut'])) {
     //mulai transaksi
     mysqli_begin_transaction($konek);
     try {
-        //ambil data lama dari tb_keluar
-        $qOld = mysqli_query($konek, "SELECT idbarang, jumlah 
-        FROM tb_keluar 
-        WHERE idkeluar = $idkeluar
-        FOR UPDATE");
 
-        if (mysqli_num_rows($qOld) == 0) {
+        /* =========================
+           ambil data lama dari tb_keluar (AMAN)
+           ========================= */
+        $stmtOld = mysqli_prepare($konek, "SELECT idbarang, jumlah
+            FROM tb_keluar
+            WHERE idkeluar = ?
+            FOR UPDATE
+        ");
+        mysqli_stmt_bind_param($stmtOld, "i", $idkeluar);
+        mysqli_stmt_execute($stmtOld);
+        mysqli_stmt_store_result($stmtOld);
+
+        if (mysqli_stmt_num_rows($stmtOld) == 0) {
             throw new Exception('Data lama tidak ditemukan');
         }
 
-        $old = mysqli_fetch_assoc($qOld);
-        $idbarangLama = (int) $old['idbarang'];
-        $jumlahLama   = (int) $old['jumlah'];
+        // ambil hasil SELECT ke variabel
+        mysqli_stmt_bind_result($stmtOld, $idbarangLama, $jumlahLama);
+        mysqli_stmt_fetch($stmtOld);
+        mysqli_stmt_close($stmtOld);
 
-        //mengambil data stok saat ini
-        $stoqLama = mysqli_query($konek, "SELECT stok FROM tb_stok WHERE idbarang = $idbarangLama FOR UPDATE");
+        /* =========================
+           mengambil data stok saat ini (AMAN)
+           ========================= */
+        $stmtStokLama = mysqli_prepare($konek, "SELECT stok
+            FROM tb_stok
+            WHERE idbarang = ?
+            FOR UPDATE
+        ");
+        mysqli_stmt_bind_param($stmtStokLama, "i", $idbarangLama);
+        mysqli_stmt_execute($stmtStokLama);
+        mysqli_stmt_store_result($stmtStokLama);
 
-        if (mysqli_num_rows($stoqLama) == 0) {
+        if (mysqli_stmt_num_rows($stmtStokLama) == 0) {
             throw new Exception('Data stok lama tidak ditemukan');
         }
 
-        $stokData = mysqli_fetch_assoc($stoqLama);
-        $stokLama = (int) $stokData['stok'];
+        mysqli_stmt_bind_result($stmtStokLama, $stokLama);
+        mysqli_stmt_fetch($stmtStokLama);
+        mysqli_stmt_close($stmtStokLama);
 
         //validasi barang
         if ($idbarangLama == $idbarang) {
+
             //hitung stok akhir
             $stokAkhir = $stokLama + $jumlahLama - $jumlah;
 
@@ -139,35 +164,53 @@ if (isset($_POST['btnUpdateOut'])) {
                 throw new Exception('Stok tidak mencukupi');
             }
 
-            //update stok
-            $updateStokLama = mysqli_query($konek, "UPDATE tb_stok 
-            SET stok = $stokAkhir
-            WHERE idbarang = $idbarangLama");
+            //update stok (AMAN)
+            $stmtUpdateStokLama = mysqli_prepare($konek, "UPDATE tb_stok
+                SET stok = ?
+                WHERE idbarang = ?
+            ");
+            mysqli_stmt_bind_param($stmtUpdateStokLama, "ii", $stokAkhir, $idbarangLama);
 
-            if (!$updateStokLama) {
+            if (!mysqli_stmt_execute($stmtUpdateStokLama)) {
                 throw new Exception('Gagal update stok lama');
             }
+
+            mysqli_stmt_close($stmtUpdateStokLama);
         } else {
+
             //hitung stok untuk barang lama
             $stokAkhirLama = $stokLama + $jumlahLama;
 
-            //update stok barang lama
-            $updateStokLama = mysqli_query($konek, "UPDATE tb_stok 
-            SET stok = $stokAkhirLama 
-            WHERE idbarang = $idbarangLama");
-            if (!$updateStokLama) {
+            //update stok barang lama (AMAN)
+            $stmtUpdateStokLama = mysqli_prepare($konek, "UPDATE tb_stok
+                SET stok = ?
+                WHERE idbarang = ?
+            ");
+            mysqli_stmt_bind_param($stmtUpdateStokLama, "ii", $stokAkhirLama, $idbarangLama);
+            if (!mysqli_stmt_execute($stmtUpdateStokLama)) {
                 throw new Exception('Gagal update stok lama');
             }
 
-            //ambil data stok barang baru
-            $stoqBaru = mysqli_query($konek, "SELECT stok FROM tb_stok WHERE idbarang = $idbarang FOR UPDATE");
+            mysqli_stmt_close($stmtUpdateStokLama);
 
-            if (mysqli_num_rows($stoqBaru) == 0) {
+            //ambil data stok barang baru (AMAN)
+            $stmtStokBaru = mysqli_prepare($konek, "
+                SELECT stok
+                FROM tb_stok
+                WHERE idbarang = ?
+                FOR UPDATE
+            ");
+            mysqli_stmt_bind_param($stmtStokBaru, "i", $idbarang);
+            mysqli_stmt_execute($stmtStokBaru);
+            mysqli_stmt_store_result($stmtStokBaru);
+
+            if (mysqli_stmt_num_rows($stmtStokBaru) == 0) {
                 throw new Exception('Data stok baru tidak ditemukan');
             }
 
-            $stokDataBaru = mysqli_fetch_assoc($stoqBaru);
-            $stokBaru = (int) $stokDataBaru['stok'];
+            mysqli_stmt_bind_result($stmtStokBaru, $stokBaru);
+            mysqli_stmt_fetch($stmtStokBaru);
+            mysqli_stmt_close($stmtStokBaru);
 
             //hitung stok akhir barang baru
             $stokAkhirBaru = $stokBaru - $jumlah;
@@ -176,37 +219,51 @@ if (isset($_POST['btnUpdateOut'])) {
             if ($stokAkhirBaru < 0) {
                 throw new Exception('Stok tidak mencukupi');
             }
-            //update stok barang baru
-            $updateStokBaru = mysqli_query($konek, "UPDATE tb_stok 
-            SET stok = $stokAkhirBaru 
-            WHERE idbarang = $idbarang");
 
-            if (!$updateStokBaru) {
+            //update stok barang baru (AMAN)
+            $stmtUpdateStokBaru = mysqli_prepare($konek, "
+                UPDATE tb_stok
+                SET stok = ?
+                WHERE idbarang = ?
+            ");
+            mysqli_stmt_bind_param($stmtUpdateStokBaru, "ii", $stokAkhirBaru, $idbarang);
+
+            if (!mysqli_stmt_execute($stmtUpdateStokBaru)) {
                 throw new Exception('Gagal update stok baru');
             }
-        }
-
-        //update data di tb_keluar
-        $updateKeluar = mysqli_query(
-            $konek,
-            "UPDATE tb_keluar SET idbarang = $idbarang,
-            jumlah   = $jumlah,
-            penerima = '$penerima'
-        WHERE idkeluar = $idkeluar"
-        );
-
-        if (!$updateKeluar) {
-            throw new Exception('Gagal update data keluar');
+            mysqli_stmt_close($stmtUpdateStokBaru);
         }
 
         /* =========================
-       COMMIT
-       ========================= */
+           update data di tb_keluar (AMAN)
+           ========================= */
+        $stmtUpdateKeluar = mysqli_prepare($konek, "
+            UPDATE tb_keluar
+            SET idbarang = ?, jumlah = ?, penerima = ?
+            WHERE idkeluar = ?
+        ");
+        mysqli_stmt_bind_param(
+            $stmtUpdateKeluar,
+            "iisi",
+            $idbarang,
+            $jumlah,
+            $penerima,
+            $idkeluar
+        );
+        if (!mysqli_stmt_execute($stmtUpdateKeluar)) {
+            throw new Exception('Gagal update data keluar');
+        }
+        mysqli_stmt_close($stmtUpdateKeluar);
+
+        /* =========================
+           COMMIT
+           ========================= */
         mysqli_commit($konek);
         $_SESSION['success'] = 'Barang Keluar berhasil diupdate';
         header('Location: ../DataKeluarPage.php');
         exit;
     } catch (Exception $e) {
+
         //rollback jika gagal
         mysqli_rollback($konek);
         $_SESSION['error'] = $e->getMessage();
@@ -229,52 +286,81 @@ if (isset($_POST['btnHapusOut'])) {
     // mulai transaksi
     mysqli_begin_transaction($konek);
     try {
-        // ambil data keluar
-        $q = mysqli_query($konek, "SELECT idbarang, jumlah 
-            FROM tb_keluar 
-            WHERE idkeluar = $idkeluar
+
+        /* =========================
+           ambil data keluar (AMAN)
+           ========================= */
+        $stmtKeluar = mysqli_prepare($konek, "
+            SELECT idbarang, jumlah
+            FROM tb_keluar
+            WHERE idkeluar = ?
             FOR UPDATE
         ");
+        mysqli_stmt_bind_param($stmtKeluar, "i", $idkeluar);
+        mysqli_stmt_execute($stmtKeluar);
+        mysqli_stmt_store_result($stmtKeluar);
 
-        if (mysqli_num_rows($q) == 0) {
+        if (mysqli_stmt_num_rows($stmtKeluar) == 0) {
             throw new Exception('Data keluar tidak ditemukan');
         }
 
-        $data = mysqli_fetch_assoc($q);
-        $idbarang = (int) $data['idbarang'];
-        $jumlah   = (int) $data['jumlah'];
+        mysqli_stmt_bind_result($stmtKeluar, $idbarang, $jumlah);
+        mysqli_stmt_fetch($stmtKeluar);
+        mysqli_stmt_close($stmtKeluar);
 
-        //validasi stok sebelum dikurangi
-        $stok = mysqli_query($konek, "SeLECT stok FROM tb_stok WHERE idbarang = $idbarang FOR UPDATE");
+        /* =========================
+           validasi stok sebelum dikurangi (AMAN)
+           ========================= */
+        $stmtStok = mysqli_prepare($konek, "
+            SELECT stok
+            FROM tb_stok
+            WHERE idbarang = ?
+            FOR UPDATE
+        ");
+        mysqli_stmt_bind_param($stmtStok, "i", $idbarang);
+        mysqli_stmt_execute($stmtStok);
+        mysqli_stmt_store_result($stmtStok);
 
-        if (mysqli_num_rows($stok) == 0) {
+        if (mysqli_stmt_num_rows($stmtStok) == 0) {
             throw new Exception('Data stok tidak ditemukan');
         }
 
-        $stokData = mysqli_fetch_assoc($stok);
-        $stokSekarang = (int) $stokData['stok'];
+        mysqli_stmt_bind_result($stmtStok, $stokSekarang);
+        mysqli_stmt_fetch($stmtStok);
+        mysqli_stmt_close($stmtStok);
 
         // if ($stokSekarang < $jumlah) {
         //     throw new Exception('Tidak bisa menghapus data keluar karena stok sudah digunakan (stok kurang)');
         // }
 
-        // kurangi stok
-        $updateStok = mysqli_query($konek, "UPDATE tb_stok 
-            SET stok = stok + $jumlah
-            WHERE idbarang = $idbarang");
+        /* =========================
+           kembalikan stok (AMAN)
+           ========================= */
+        $stmtUpdateStok = mysqli_prepare($konek, "
+            UPDATE tb_stok
+            SET stok = stok + ?
+            WHERE idbarang = ?
+        ");
+        mysqli_stmt_bind_param($stmtUpdateStok, "ii", $jumlah, $idbarang);
 
-        if (!$updateStok) {
+        if (!mysqli_stmt_execute($stmtUpdateStok)) {
             throw new Exception('Gagal mengurangi stok');
         }
+        mysqli_stmt_close($stmtUpdateStok);
 
-        // hapus data keluar
-        $deleteKeluar = mysqli_query($konek, "DELETE FROM tb_keluar 
-            WHERE idkeluar = $idkeluar
+        /* =========================
+           hapus data keluar (AMAN)
+           ========================= */
+        $stmtDelete = mysqli_prepare($konek, "
+            DELETE FROM tb_keluar
+            WHERE idkeluar = ?
         ");
+        mysqli_stmt_bind_param($stmtDelete, "i", $idkeluar);
 
-        if (!$deleteKeluar) {
+        if (!mysqli_stmt_execute($stmtDelete)) {
             throw new Exception('Gagal menghapus data keluar');
         }
+        mysqli_stmt_close($stmtDelete);
 
         // commit transaksi
         mysqli_commit($konek);
@@ -283,6 +369,7 @@ if (isset($_POST['btnHapusOut'])) {
         header('Location: ../DataKeluarPage.php');
         exit;
     } catch (Exception $e) {
+
         // rollback transaksi
         mysqli_rollback($konek);
 
